@@ -1,0 +1,31 @@
+config {
+  type: "operations",
+  tags: ["cdc", "sap"],
+  hasOutput: true,
+  schema: "{{ target_schema }}"
+}
+
+MERGE ${self()} AS T
+USING (
+  WITH NewRawRecords AS (
+    SELECT * FROM ${ref("{{ base_table }}")}
+    WHERE recordstamp >= (
+      SELECT IFNULL(MAX(recordstamp), TIMESTAMP('1940-12-25 05:30:00+00'))
+      FROM ${self()}
+    )
+  )
+  SELECT *
+  FROM NewRawRecords
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY {{ partition_by_keys | join(', ') }}
+    ORDER BY recordstamp DESC, IF(operation_flag = 'D', 'ZZ', operation_flag) DESC
+  ) = 1
+) AS S
+ON {{ join_condition }}
+WHEN NOT MATCHED AND IFNULL(S.operation_flag, 'I') != 'D' THEN
+  INSERT ({{ insert_cols }}, recordstamp, operation_flag)
+  VALUES ({{ insert_vals }}, S.recordstamp, S.operation_flag)
+WHEN MATCHED AND S.operation_flag = 'D' THEN
+  DELETE
+WHEN MATCHED AND S.operation_flag IN ('I','U','L') THEN
+  UPDATE SET {{ update_set_clause }}, T.recordstamp = S.recordstamp, T.operation_flag = S.operation_flag

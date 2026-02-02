@@ -6,8 +6,9 @@
     "deployOracleEBS": true,
     "enableTaskDependencies": false,
     "turboMode": true,
-    "projectIdSource": "",
-    "projectIdTarget": "",
+    "projectIdSource": "test-project",
+    "projectIdTarget": "test-project",
+    "orchestrationMode": "dataform",
     "targetBucket": "",
     "location": "US",
     "testDataProject": "kittycorn-public",
@@ -43,12 +44,12 @@
             "additionalPrompt": "",
             "lookbackWindowDays": 7
         },
-        "Meridian":{
+        "Meridian": {
             "salesDataSourceType": "",
-            "salesDatasetID":"",
+            "salesDatasetID": "",
             "deploymentType": "",
-            "defaultNotebookFile":"meridian_cortex_marketing.ipynb",
-            "defaultConfigFile":"cortex_meridian_config.json",
+            "defaultNotebookFile": "meridian_cortex_marketing.ipynb",
+            "defaultConfigFile": "cortex_meridian_config.json",
             "gcsBucketNameSuffix": "cortex-meridian",
             "workflow": {
                 "template": "create_notebook_execution_run.yaml",
@@ -83,8 +84,8 @@
             "USD"
         ],
         "datasets": {
-            "cdc": "",
-            "raw": "",
+            "cdc": "CDC",
+            "raw": "RAW",
             "reporting": "REPORTING"
         }
     },
